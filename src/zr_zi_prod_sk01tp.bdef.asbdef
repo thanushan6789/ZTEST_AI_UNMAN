@@ -1,0 +1,54 @@
+unmanaged implementation in class ZBP_R_zi_prod_sk01TP unique;
+strict ( 2 );
+with draft;
+define behavior for ZR_zi_prod_sk01TP alias zi_prod_sk
+implementation in class ZBP_R_zi_prod_sk01TP unique
+draft table ZZI_PROD_SK00D
+etag master LocalLastChangedAt
+lock master total etag LastChangedAt
+authorization master( global )
+{
+  field ( readonly )
+   ID,
+   LocalCreatedBy,
+   LocalCreatedAt,
+   LocalLastChangedAt,
+   LastChangedAt;
+
+  create;
+  update;
+  delete;
+
+  draft action Edit;
+  draft action Activate;
+  draft action Discard;
+  draft action Resume;
+  draft determine action Prepare;
+
+  mapping for ZPROD_SK control ZSzi_prod_sk01_X
+  {
+    ID = ID;
+    Material = MATERIAL;
+    Description = DESCRIPTION;
+    Colour = COLOUR;
+    Weight = WEIGHT;
+    LocalCreatedBy = LOCAL_CREATED_BY;
+    LocalCreatedAt = LOCAL_CREATED_AT;
+    LocalLastChangedBy = LOCAL_LAST_CHANGED_BY;
+    LocalLastChangedAt = LOCAL_LAST_CHANGED_AT;
+    LastChangedAt = LAST_CHANGED_AT;
+  }
+    mapping for  ZZI_PROD_SK00D
+  {
+    ID = ID;
+    Material = MATERIAL;
+    Description = DESCRIPTION;
+    Colour = COLOUR;
+    Weight = WEIGHT;
+    LocalCreatedBy = LOCALCREATEDBY;
+    LocalCreatedAt = LOCALCREATEDAT;
+    LocalLastChangedBy = LOCALLASTCHANGEDBY;
+    LocalLastChangedAt = LOCALLASTCHANGEDAT;
+    LastChangedAt = LASTCHANGEDAT;
+  }
+}

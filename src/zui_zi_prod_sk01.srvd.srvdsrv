@@ -1,0 +1,4 @@
+@ObjectModel.leadingEntity.name: 'ZC_zi_prod_sk01TP'
+define service ZUI_zi_prod_sk01 {
+  expose ZC_ZI_PROD_SK01TP as zi_prod_sk;
+}
