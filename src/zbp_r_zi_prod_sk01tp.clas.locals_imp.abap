@@ -20,7 +20,9 @@ CLASS lhc_zi_prod_sk DEFINITION INHERITING FROM cl_abap_behavior_handler.
       read FOR READ
         IMPORTING
           keys   FOR READ  zi_prod_sk
-          RESULT    result.
+          RESULT    result,
+      earlynumbering_create FOR NUMBERING
+            IMPORTING entities FOR CREATE zi_prod_sk.
 ENDCLASS.
 
 CLASS lhc_zi_prod_sk IMPLEMENTATION.
@@ -114,6 +116,25 @@ CLASS lhc_zi_prod_sk IMPLEMENTATION.
       ENDIF.
     ENDIF.
   ENDMETHOD.
+  METHOD earlynumbering_create.
+    DATA: lv_num(5) TYPE n.
+  DATA: lv_vehid(8) TYPE n.
+    SELECT MAX( id ) FROM zzi_prod_sk00d INTO @DATA(lv_id).
+    if lv_id IS NOT INITIAL.
+      lv_Id = lv_id + 1.
+    ELSE.
+        lv_id = 1.
+    endif.
+
+
+    DATA(ls_entities) = VALUE #( entities[ 1 ] OPTIONAL ).
+    ls_entities-Id = lv_id.
+    mapped-zi_prod_sk  = VALUE #( ( %cid = ls_entities-%cid
+                                     %is_draft = ls_entities-%is_draft
+                                     %key = ls_entities-%key ) ).
+  ENDMETHOD.
+
+
 ENDCLASS.
 CLASS lcl_zr_zi_prod_sk01tp DEFINITION INHERITING FROM cl_abap_behavior_saver.
   PROTECTED SECTION.
