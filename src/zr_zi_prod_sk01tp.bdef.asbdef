@@ -7,6 +7,7 @@ draft table ZZI_PROD_SK00D
 etag master LocalLastChangedAt
 lock master total etag LastChangedAt
 authorization master( global )
+early numbering
 {
   field ( readonly )
    ID,
@@ -20,7 +21,7 @@ authorization master( global )
   delete;
 
   draft action Edit;
-  draft action Activate;
+  draft action Activate optimized;
   draft action Discard;
   draft action Resume;
   draft determine action Prepare;

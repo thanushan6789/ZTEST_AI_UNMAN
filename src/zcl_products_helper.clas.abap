@@ -29,7 +29,7 @@ CLASS zcl_products_helper DEFINITION
         CHANGING
                   mapped   TYPE tt_mapped_early
                   failed   TYPE tt_failed_early
-                  repored  TYPE tt_reported_early,
+                  reported  TYPE tt_reported_early,
 
       delete
         IMPORTING keys     TYPE tt_delete

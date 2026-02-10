@@ -19,25 +19,57 @@ CLASS lhc_zi_prod_sk DEFINITION INHERITING FROM cl_abap_behavior_handler.
           keys FOR LOCK  zi_prod_sk,
       read FOR READ
         IMPORTING
-                  keys   FOR READ  zi_prod_sk
-        RESULT    result.
+          keys   FOR READ  zi_prod_sk
+          RESULT    result.
 ENDCLASS.
 
 CLASS lhc_zi_prod_sk IMPLEMENTATION.
+
   METHOD get_global_authorizations.
+    result-%create = if_abap_behv=>auth-allowed.
+    result-%update = if_abap_behv=>auth-allowed.
+    result-%delete = if_abap_behv=>auth-allowed.
   ENDMETHOD.
+
   METHOD create.
-   LOOP AT entities INTO DATA(ls_entity).
-      " Draft framework stores data automatically
-      " Only fill technical fields if needed
-    ENDLOOP.
+    DATA(lo_prod) = zcl_products_helper=>get_instance( ).
+    lo_prod->create(
+    EXPORTING
+      entities = entities
+    CHANGING
+      mapped   = mapped
+      failed   = failed
+      reported  = reported
+  ).
   ENDMETHOD.
+
   METHOD update.
+    zcl_products_helper=>get_instance( )->update(
+    EXPORTING
+      entities = entities
+    CHANGING
+      mapped   = mapped
+      failed   = failed
+      reported  = reported
+  ).
   ENDMETHOD.
+
   METHOD delete.
+    zcl_products_helper=>get_instance( )->delete(
+   EXPORTING
+     keys = keys
+   CHANGING
+     mapped   = mapped
+     failed   = failed
+     reported  = reported
+ ).
   ENDMETHOD.
+
   METHOD lock.
   ENDMETHOD.
+
+
+
   METHOD read.
     DATA(lo_ext_srv) = NEW zcl_con_svc1( ).
     IF keys IS INITIAL.
@@ -99,6 +131,71 @@ CLASS lcl_zr_zi_prod_sk01tp IMPLEMENTATION.
   METHOD check_before_save.
   ENDMETHOD.
   METHOD save.
+
+*
+*    DATA: lt_create TYPE STANDARD TABLE OF zr_zi_prod_sk01tp,
+*          lt_update TYPE STANDARD TABLE OF zr_zi_prod_sk01tp,
+*          lt_delete TYPE STANDARD TABLE OF zr_zi_prod_sk01tp.
+*
+*    "--------------------------------------------------
+*    " 1. Get data that user is activating
+*
+*    lt_create = CORRESPONDING #( create-zi_prod_sk ).
+*    lt_update = CORRESPONDING #( it_update ).
+*    lt_delete = CORRESPONDING #( it_delete ).
+*
+*
+*
+*
+*
+*    "--------------------------------------------------
+*    " 2. CREATE
+*    "--------------------------------------------------
+*    LOOP AT lt_create INTO DATA(ls_create).
+*
+*      TRY.
+*          zcl_external_api=>create_order(
+*            EXPORTING
+*              is_data = ls_create
+*          ).
+*        CATCH zcx_api_error INTO DATA(lx).
+*          reported->add_message(
+*            id       = 'ZSO'
+*            number   = '001'
+*            severity = if_abap_behv_message=>severity-error
+*            message  = lx->get_text( )
+*          ).
+*          failed->add( VALUE #( so_id = ls_create-so_id ) ).
+*      ENDTRY.
+*
+*    ENDLOOP.
+*
+*    "--------------------------------------------------
+*    " 3. UPDATE
+*    "--------------------------------------------------
+*    LOOP AT lt_update INTO DATA(ls_update).
+*
+*      zcl_external_api=>update_order(
+*        EXPORTING
+*          is_data = ls_update
+*      ).
+*
+*    ENDLOOP.
+*
+*    "--------------------------------------------------
+*    " 4. DELETE
+*    "--------------------------------------------------
+*    LOOP AT lt_delete INTO DATA(ls_delete).
+*
+*      zcl_external_api=>delete_order(
+*        EXPORTING
+*          iv_so_id = ls_delete-so_id
+*      ).
+*
+*    ENDLOOP.
+
+
+
   ENDMETHOD.
   METHOD cleanup.
   ENDMETHOD.
