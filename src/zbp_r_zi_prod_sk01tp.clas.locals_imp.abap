@@ -77,7 +77,7 @@ CLASS lhc_zi_prod_sk IMPLEMENTATION.
     IF keys IS INITIAL.
 * Get all the data
       DATA(lt_prod) = lo_ext_srv->get_prod_list(  ).
-      result = CORRESPONDING #( lt_prod ).
+      result = CORRESPONDING #( lt_prod  ).
     ELSE.
 * If single key
       " check for draft exist
@@ -117,9 +117,17 @@ CLASS lhc_zi_prod_sk IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
   METHOD earlynumbering_create.
-    DATA: lv_num(5) TYPE n.
-  DATA: lv_vehid(8) TYPE n.
-    SELECT MAX( id ) FROM zzi_prod_sk00d INTO @DATA(lv_id).
+
+  DATA: lv_id TYPE int4.
+    SELECT MAX( id ) FROM zzi_prod_sk00d INTO @DATA(lv_id1).
+    SELECT MAX( id ) FROM zsk_prod INTO @DATA(lv_id2).
+
+    IF lv_id1 > lv_id2.
+      lv_id = lv_id1.
+    ELSE.
+      lv_id = lv_id2.
+    ENDIF.
+
     if lv_id IS NOT INITIAL.
       lv_Id = lv_id + 1.
     ELSE.
@@ -151,71 +159,13 @@ CLASS lcl_zr_zi_prod_sk01tp IMPLEMENTATION.
   ENDMETHOD.
   METHOD check_before_save.
   ENDMETHOD.
+
   METHOD save.
 
-*
-*    DATA: lt_create TYPE STANDARD TABLE OF zr_zi_prod_sk01tp,
-*          lt_update TYPE STANDARD TABLE OF zr_zi_prod_sk01tp,
-*          lt_delete TYPE STANDARD TABLE OF zr_zi_prod_sk01tp.
-*
-*    "--------------------------------------------------
-*    " 1. Get data that user is activating
-*
-*    lt_create = CORRESPONDING #( create-zi_prod_sk ).
-*    lt_update = CORRESPONDING #( it_update ).
-*    lt_delete = CORRESPONDING #( it_delete ).
-*
-*
-*
-*
-*
-*    "--------------------------------------------------
-*    " 2. CREATE
-*    "--------------------------------------------------
-*    LOOP AT lt_create INTO DATA(ls_create).
-*
-*      TRY.
-*          zcl_external_api=>create_order(
-*            EXPORTING
-*              is_data = ls_create
-*          ).
-*        CATCH zcx_api_error INTO DATA(lx).
-*          reported->add_message(
-*            id       = 'ZSO'
-*            number   = '001'
-*            severity = if_abap_behv_message=>severity-error
-*            message  = lx->get_text( )
-*          ).
-*          failed->add( VALUE #( so_id = ls_create-so_id ) ).
-*      ENDTRY.
-*
-*    ENDLOOP.
-*
-*    "--------------------------------------------------
-*    " 3. UPDATE
-*    "--------------------------------------------------
-*    LOOP AT lt_update INTO DATA(ls_update).
-*
-*      zcl_external_api=>update_order(
-*        EXPORTING
-*          is_data = ls_update
-*      ).
-*
-*    ENDLOOP.
-*
-*    "--------------------------------------------------
-*    " 4. DELETE
-*    "--------------------------------------------------
-*    LOOP AT lt_delete INTO DATA(ls_delete).
-*
-*      zcl_external_api=>delete_order(
-*        EXPORTING
-*          iv_so_id = ls_delete-so_id
-*      ).
-*
-*    ENDLOOP.
-
-
+   zcl_products_helper=>get_instance( )->save_data(
+   CHANGING
+     reported  = reported
+ ).
 
   ENDMETHOD.
   METHOD cleanup.

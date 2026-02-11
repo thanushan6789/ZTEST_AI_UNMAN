@@ -4,7 +4,7 @@
 @ObjectModel.semanticKey: [ 'ID' ]
 @Search.searchable: true
 define root view entity ZC_zi_prod_sk01TP
-  provider contract TRANSACTIONAL_QUERY
+  provider contract transactional_query
   as projection on ZR_zi_prod_sk01TP as zi_prod_sk
 {
   @Search.defaultSearchElement: true

@@ -11,46 +11,46 @@ CLASS zcl_con_svc1 DEFINITION
       get_prod
         IMPORTING iv_prod_id     TYPE int4
         RETURNING VALUE(rs_prod) TYPE  zcl_prod_serv=>tys_zc_skprodtype,
-       create_prod
-        EXPORTING ls_data type zcl_prod_serv=>tys_zc_skprodtype.
+      create_prod
+        EXPORTING ls_data TYPE zcl_prod_serv=>tys_zc_skprodtype.
 
 
 
   PROTECTED SECTION.
   PRIVATE SECTION.
-    CONSTANTS: gv_root TYPE string VALUE 'https://276860ba-d056-4682-9f44-b4d9470cc840.abap-web.eu10.hana.ondemand.com/sap/opu/odata4/sap/zapi_skprod_o4/srvd_a2x/sap/zapi_skprod_o4/0001/?sap-client=100'.
+    data: gv_root TYPE string VALUE 'https://276860ba-d056-4682-9f44-b4d9470cc840.abap-web.eu10.hana.ondemand.com/sap/opu/odata4/sap/zapi_skprod_o4/srvd_a2x/sap/zapi_skprod_o4/0001/?sap-client=100'.
     CONSTANTS: gv_url_root TYPE string VALUE '/sap/opu/odata4/sap/api_product_srv/srvd_a2x/sap/api_product/0001/'.
 ENDCLASS.
 
 
 
 CLASS zcl_con_svc1 IMPLEMENTATION.
-  method create_prod.
+  METHOD create_prod.
 
-DATA:
-  ls_business_data TYPE zcl_prod_serv=>tys_zc_skprodtype,
-  lo_http_client   TYPE REF TO if_web_http_client,
-  lo_client_proxy  TYPE REF TO /iwbep/if_cp_client_proxy,
-  lo_request       TYPE REF TO /iwbep/if_cp_request_create,
-  lo_response      TYPE REF TO /iwbep/if_cp_response_create.
+    DATA:
+      ls_business_data TYPE zcl_prod_serv=>tys_zc_skprodtype,
+      lo_http_client   TYPE REF TO if_web_http_client,
+      lo_client_proxy  TYPE REF TO /iwbep/if_cp_client_proxy,
+      lo_request       TYPE REF TO /iwbep/if_cp_request_create,
+      lo_response      TYPE REF TO /iwbep/if_cp_response_create.
 
 
-TRY.
-" Create http client
+    TRY.
+        " Create http client
 *DATA(lo_destination) = cl_http_destination_provider=>create_by_comm_arrangement(
 *                                             comm_scenario  = '<Comm Scenario>'
 *                                             comm_system_id = '<Comm System Id>'
 *                                             service_id     = '<Service Id>' ).
 *lo_http_client = cl_web_http_client_manager=>create_by_http_destination( lo_destination ).
-lo_client_proxy = /iwbep/cl_cp_factory_remote=>create_v4_remote_proxy(
-  EXPORTING
-     is_proxy_model_key       = VALUE #( repository_id       = 'DEFAULT'
-                                         proxy_model_id      = 'ZCL_PROD_SERV'
-                                         proxy_model_version = '0001' )
-    io_http_client             = lo_http_client
-    iv_relative_service_root   = gv_root ).
+        lo_client_proxy = /iwbep/cl_cp_factory_remote=>create_v4_remote_proxy(
+          EXPORTING
+             is_proxy_model_key       = VALUE #( repository_id       = 'DEFAULT'
+                                                 proxy_model_id      = 'ZCL_PROD_SERV'
+                                                 proxy_model_version = '0001' )
+            io_http_client             = lo_http_client
+            iv_relative_service_root   = gv_root ).
 
-ASSERT lo_http_client IS BOUND.
+        ASSERT lo_http_client IS BOUND.
 
 
 * Prepare business data
@@ -65,35 +65,35 @@ ASSERT lo_http_client IS BOUND.
 *          local_last_changed_by  = 'LocalLastChangedBy'
 *          local_last_changed_at  = 20170101123000
 *          last_changed_at        = 20170101123000 ).
-ls_business_data = CORRESPONDING #( ls_data ).
+        ls_business_data = CORRESPONDING #( ls_data ).
 
-" Navigate to the resource and create a request for the create operation
-lo_request = lo_client_proxy->create_resource_for_entity_set( 'ZC_SKPROD' )->create_request_for_create( ).
+        " Navigate to the resource and create a request for the create operation
+        lo_request = lo_client_proxy->create_resource_for_entity_set( 'ZC_SKPROD' )->create_request_for_create( ).
 
-" Set the business data for the created entity
-lo_request->set_business_data( ls_business_data ).
+        " Set the business data for the created entity
+        lo_request->set_business_data( ls_business_data ).
 
-" Execute the request
-lo_response = lo_request->execute( ).
+        " Execute the request
+        lo_response = lo_request->execute( ).
 
-" Get the after image
+        " Get the after image
 *lo_response->get_business_data( IMPORTING es_business_data = ls_business_data ).
 
-CATCH /iwbep/cx_cp_remote INTO DATA(lx_remote).
-" Handle remote Exception
-" It contains details about the problems of your http(s) connection
+      CATCH /iwbep/cx_cp_remote INTO DATA(lx_remote).
+        " Handle remote Exception
+        " It contains details about the problems of your http(s) connection
 
 
-CATCH /iwbep/cx_gateway INTO DATA(lx_gateway).
-" Handle Exception
+      CATCH /iwbep/cx_gateway INTO DATA(lx_gateway).
+        " Handle Exception
 
-CATCH cx_web_http_client_error INTO DATA(lx_web_http_client_error).
-" Handle Exception
-RAISE SHORTDUMP lx_web_http_client_error.
+      CATCH cx_web_http_client_error INTO DATA(lx_web_http_client_error).
+        " Handle Exception
+        RAISE SHORTDUMP lx_web_http_client_error.
 
-ENDTRY.
+    ENDTRY.
 
-  endmethod.
+  ENDMETHOD.
   METHOD get_prod.
 
     DATA:

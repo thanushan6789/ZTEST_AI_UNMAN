@@ -15,6 +15,10 @@ CLASS zcl_products_helper DEFINITION
             tt_keys_read      TYPE TABLE FOR READ IMPORT ZR_zi_prod_sk01TP,
             tt_read_result    TYPE TABLE FOR READ RESULT ZR_zi_prod_sk01TP.
 
+   DATA: ls_ext_data1     TYPE zcl_prod_serv=>tys_zc_skprodtype,
+         ls_ext_data_tab1 TYPE zcl_prod_serv=>tyt_zc_skprodtype.
+
+
     CLASS-METHODS get_instance RETURNING VALUE(ro_prod) TYPE REF TO zcl_products_helper.
     CLASS-DATA : go_prod        TYPE REF TO zcl_products_helper,
                  gt_prod_create TYPE TABLE OF zzi_prod_sk00d,
@@ -29,7 +33,7 @@ CLASS zcl_products_helper DEFINITION
         CHANGING
                   mapped   TYPE tt_mapped_early
                   failed   TYPE tt_failed_early
-                  reported  TYPE tt_reported_early,
+                  reported TYPE tt_reported_early,
 
       delete
         IMPORTING keys     TYPE tt_delete
@@ -68,16 +72,32 @@ CLASS zcl_products_helper IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD save_data.
+
     IF gt_prod_create IS NOT INITIAL.
-      INSERT zzi_prod_sk00d FROM TABLE @gt_prod_create.
+      DATA(lo_ext_prod) = NEW zcl_con_svc1( ).
+
+      LOOP AT gt_prod_create INTO DATA(ls_create).
+        MOVE-CORRESPONDING ls_create TO ls_ext_data1.
+        TRY.
+            lo_ext_prod->create_prod(
+              IMPORTING
+                ls_data = ls_ext_data1
+            ).
+
+          CATCH cx_root INTO DATA(lx).
+
+        ENDTRY.
+
+
+      ENDLOOP.
     ENDIF.
 
     IF gt_prod_delete IS NOT INITIAL.
-      DELETE FROM zzi_prod_sk00d WHERE id IN @gt_prod_delete.
+
     ENDIF.
 
     IF gt_prod_update IS NOT INITIAL.
-      UPDATE zzi_prod_sk00d FROM TABLE @gt_prod_update.
+
     ENDIF.
 
   ENDMETHOD.
